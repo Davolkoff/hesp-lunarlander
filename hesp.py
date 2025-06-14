@@ -12,9 +12,10 @@ class HESP:
         self.population_size = population_size
         self.L1_size = L1_size
         self.L2_size = L2_size
-        self.L2 = []
+        self.L2 = [[] for _ in range(self.hidden_units)]  # список списков нейронов по позициям
         self.best_network = None
         self.best_fitness = -np.inf
+        self.max_neurons_per_position = 20
 
         # Инициализируем L1: создаем и оцениваем сети
         self.L1 = []
@@ -56,12 +57,15 @@ class HESP:
 
 
     def update_L2(self, network):
-        for neuron in network.hidden_neurons + network.output_neurons:
-            if len(self.L2) < self.L2_size:
-                self.L2.append(neuron)
-            elif neuron.fitness > min(n.fitness for n in self.L2):
-                worst = np.argmin([n.fitness for n in self.L2])
-                self.L2[worst] = neuron
+        for i, neuron in enumerate(network.hidden_neurons):
+            if len(self.L2[i]) < self.max_neurons_per_position:
+                self.L2[i].append(neuron.clone())
+            else:
+                # заменить худшего
+                worst_idx = np.argmin([n.fitness for n in self.L2[i]])
+                if neuron.fitness > self.L2[i][worst_idx].fitness:
+                    self.L2[i][worst_idx] = neuron.clone()
+
 
     def evaluate_population(self, population):
         for net in population:
@@ -72,13 +76,16 @@ class HESP:
         new_pop = []
         sorted_L1 = sorted(self.L1, key=lambda x: x.fitness, reverse=True)
         topk = sorted_L1[:max(2, len(sorted_L1)//3)]
+        
         while len(new_pop) < self.population_size:
             p1 = random.choice(topk)
             p2 = random.choice(topk)
             if p2 is p1:
                 continue
             child = p1.crossover(p2)
-            child.mutate()
+            
+            child.mutate(L2_pool=self.L2)  
+            
             new_pop.append(child)
         return new_pop
 
