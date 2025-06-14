@@ -38,7 +38,7 @@ class NeuralNetwork:
         output = np.array([n.activate(hidden_output, use_tanh=False) for n in self.output_neurons])
         return output
 
-    def mutate(self, reuse_prob=0.1, L2_pool=None):
+    def mutate(self, reuse_prob=0.005, L2_pool=None):
         for i, neuron in enumerate(self.hidden_neurons):
             # С вероятностью reuse_prob заменяем нейрон на копию из L2
             if L2_pool and random.random() < reuse_prob:

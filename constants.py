@@ -1,1 +1,2 @@
-MODE = 'train/'
+# MODE = 'train'
+MODE = 'test'

@@ -1,7 +1,7 @@
 import gymnasium as gym
 from hesp import HESP
 from constants import MODE
-from utils import run_with_saved_weights
+from utils import run_with_saved_weights, plot_avg_fitness
 
 
 # Запуск алгоритма
@@ -17,6 +17,7 @@ if __name__ == "__main__":
         )
         hesp.evolve(generations=100000)
         hesp.save_best_network("best_network_weights.json")
+        plot_avg_fitness(hesp.avg_history)
         env.close()
     else:
         # Использование

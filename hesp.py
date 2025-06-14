@@ -2,6 +2,7 @@ import pickle
 import numpy as np
 import random
 from network import NeuralNetwork, Neuron
+from utils import visualize_topology
 
 class HESP:
     def __init__(self, env, population_size=50, hidden_units=5, L1_size=10, L2_size=100):
@@ -16,6 +17,8 @@ class HESP:
         self.best_network = None
         self.best_fitness = -np.inf
         self.max_neurons_per_position = 20
+        self.avg_history = []
+
 
         # Инициализируем L1: создаем и оцениваем сети
         self.L1 = []
@@ -96,6 +99,12 @@ class HESP:
             best = max(n.fitness for n in self.L1)
             avg = np.mean([n.fitness for n in self.L1])
             print(f"Gen {gen+1}: best={best:.2f}, avg={avg:.2f}")
+
+            self.avg_history.append(avg)
+
+            if gen % 20 == 0:
+                visualize_topology(self.best_network, gen)
+
 
             if avg >= 200:
                 print("Solved!")
